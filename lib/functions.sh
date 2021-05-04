@@ -352,12 +352,14 @@ _check_particld_state() {
     fi
     if [ "$( $PARTY_CLI help 2>/dev/null | wc -l )" -gt 0 ]; then
         PARTYD_RESPONDING=1
-        PARTYD_WALLETSTATUS=$( "$PARTY_CLI" getwalletinfo | jq -r .encryptionstatus )
-        PARTYD_WALLET=$( "$PARTY_CLI" getwalletinfo | jq -r .hdmasterkeyid )
+        PARTY_CLI="$INSTALL_DIR/particl-cli"
+        PARTYD_WALLETSTATUS=$( "$PARTY_CLI" -testnet getwalletinfo | jq -r .encryptionstatus )
+        PARTYD_WALLET=$( "$PARTY_CLI" -testnet getwalletinfo | jq -r .hdmasterkeyid )
         if [ "$PARTYD_WALLET"  == "null" ]; then
-            PARTYD_WALLET=$( "$PARTY_CLI" getwalletinfo | jq -r .hdseedid )
+            PARTYD_WALLET=$( "$PARTY_CLI" -testnet getwalletinfo | jq -r .hdseedid )
         fi
-        PARTYD_TBALANCE=$( "$PARTY_CLI" getwalletinfo | jq -r .total_balance )
+        PARTYD_TBALANCE=$( "$PARTY_CLI" -testnet getwalletinfo | jq -r .total_balance )
+        PARTY_CLI="$INSTALL_DIR/particl-cli -testnet"
     fi
 }
 
@@ -1361,7 +1363,7 @@ firewall_reset(){
 
 _get_particld_proc_status(){
     PARTYD_HASPID=0
-    if [ -e "$DATA_DIR/particl.pid" ] ; then
+    if [ -e "$DATA_DIR/testnet/particl.pid" ] ; then
         PARTYD_HASPID=$(ps --no-header "$(cat "$DATA_DIR/particl.pid" 2>/dev/null)" | wc -l);
     else
         if ! PARTYD_HASPID=$(pidof "$INSTALL_DIR/particld"); then
