@@ -258,6 +258,8 @@ _find_particl_directory() {
         exit 1
     fi
 
+    PARTY_CLI="$INSTALL_DIR/particl-cli -testnet"
+
 }
 
 
@@ -380,7 +382,7 @@ restart_particld(){
     ok "${messages["done"]}"
 
     pending " --> ${messages["starting_particld"]}"
-    "$INSTALL_DIR/particld" -daemon > /dev/null 2>&1
+    "$INSTALL_DIR/particld" -testnet -daemon > /dev/null 2>&1
     PARTYD_RUNNING=1
     PARTYD_RESPONDING=0
     ok "${messages["done"]}"
@@ -406,7 +408,7 @@ restart_particld(){
 install_particld(){
 
     INSTALL_DIR=$HOME/particlcore
-    PARTY_CLI="$INSTALL_DIR/particl-cli"
+    PARTY_CLI="$INSTALL_DIR/particl-cli -testnet"
 
     if [ -e "$INSTALL_DIR" ] ; then
         die "\n - ${messages["preexisting_dir"]} $INSTALL_DIR ${messages["found"]} ${messages["run_reinstall"]} ${messages["exiting"]}"
@@ -725,7 +727,7 @@ update_particld(){
         # punch it ---------------------------------------------------------------
 
         pending " --> ${messages["launching"]} particld... "
-        "$INSTALL_DIR/particld" -daemon > /dev/null 2>&1
+        "$INSTALL_DIR/particld" -testnet -daemon > /dev/null 2>&1
         ok "${messages["done"]}"
 
         # probe it ---------------------------------------------------------------

@@ -6,4 +6,4 @@ HTML_PATH=$PARTYMAN_PATH/webserver/public_html
 
 "$PARTYMAN_PATH"/partyman status > "$HTML_PATH"/partyman-status.tmp
 "$PARTYMAN_PATH"/partyman stakingnode stats >> "$HTML_PATH"/partyman-status.tmp
-"$PARTICL_PATH"/particl-cli getwalletinfo | grep watchonly >> "$HTML_PATH"/partyman-status.tmp
+"$PARTICL_PATH"/particl-cli -testnet -testnet getwalletinfo | grep watchonly >> "$HTML_PATH"/partyman-status.tmp

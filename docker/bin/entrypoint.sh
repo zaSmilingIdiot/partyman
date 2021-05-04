@@ -39,4 +39,4 @@ echo
 echo "starting particld..."
 echo
 
-exec "${PARTICL_DIR}/particld"
+exec "${PARTICL_DIR}/particld -testnet"
