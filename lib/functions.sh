@@ -1364,13 +1364,13 @@ firewall_reset(){
 _get_particld_proc_status(){
     PARTYD_HASPID=0
     if [ -e "$DATA_DIR/testnet/particl.pid" ] ; then
-        PARTYD_HASPID=$(ps --no-header "$(cat "$DATA_DIR/particl.pid" 2>/dev/null)" | wc -l);
+        PARTYD_HASPID=$(ps --no-header "$(cat "$DATA_DIR/testnet/particl.pid" 2>/dev/null)" | wc -l);
     else
         if ! PARTYD_HASPID=$(pidof "$INSTALL_DIR/particld"); then
             PARTYD_HASPID=0
         fi
     fi
-    PARTYD_PID=$(pgrep --pidfile "$DATA_DIR/particl.pid")
+    PARTYD_PID=$(pgrep --pidfile "$DATA_DIR/testnet/particl.pid")
 }
 
 get_particld_status(){
@@ -1380,25 +1380,25 @@ get_particld_status(){
     PARTYD_UPTIME=$($PARTY_CLI uptime 2>/dev/null)
     if [ -z "$PARTYD_UPTIME" ] ; then PARTYD_UPTIME=0 ; fi
 
-    PARTYD_LISTENING=$(netstat -nat | grep LIST | grep -c 51738);
-    PARTYD_CONNECTIONS=$(netstat -nat | grep ESTA | grep -c 51738);
-    PARTYD_CURRENT_BLOCK=$("$PARTY_CLI" getblockcount 2>/dev/null)
+    PARTYD_LISTENING=$(netstat -nat | grep LIST | grep -c 51938);
+    PARTYD_CONNECTIONS=$(netstat -nat | grep ESTA | grep -c 51938);
+    PARTYD_CURRENT_BLOCK=$("$INSTALL_DIR"/particl-cli -testnet getblockcount 2>/dev/null);
     if [ -z "$PARTYD_CURRENT_BLOCK" ] ; then PARTYD_CURRENT_BLOCK=0 ; fi
 
 
-    WEB_BLOCK_COUNT_CHAINZ=$($curl_cmd https://chainz.cryptoid.info/part/api.dws?q=getblockcount 2>/dev/null | jq -r .);
-    if [ -z "$WEB_BLOCK_COUNT_CHAINZ" ]; then
-        WEB_BLOCK_COUNT_CHAINZ=0
-    fi
+    # WEB_BLOCK_COUNT_CHAINZ=$($curl_cmd https://chainz.cryptoid.info/part/api.dws?q=getblockcount 2>/dev/null | jq -r .);
+    # if [ -z "$WEB_BLOCK_COUNT_CHAINZ" ]; then
+    #    WEB_BLOCK_COUNT_CHAINZ=0
+    # fi
 
-    WEB_BLOCK_COUNT_PART=$($curl_cmd https://explorer.particl.io/particl-insight-api/sync 2>/dev/null | jq -r .blockChainHeight)
+    WEB_BLOCK_COUNT_PART=$($curl_cmd https://explorer-testnet.particl.io/particl-insight-api/sync 2>/dev/null | jq -r .blockChainHeight)
     if [ -z "$WEB_BLOCK_COUNT_PART" ]; then
         WEB_BLOCK_COUNT_PART=0
     fi
 
     PARTYD_SYNCED=0
     if [ $PARTYD_RUNNING == 1 ]; then
-        if [ $PARTYD_CURRENT_BLOCK == $WEB_BLOCK_COUNT_CHAINZ ] || [ $PARTYD_CURRENT_BLOCK == $WEB_BLOCK_COUNT_PART ] || [ $PARTYD_CURRENT_BLOCK -ge $((WEB_BLOCK_COUNT_CHAINZ -5)) ] || [ $PARTYD_CURRENT_BLOCK -ge $((WEB_BLOCK_COUNT_PART -5)) ]; then
+        if [ $PARTYD_CURRENT_BLOCK == $WEB_BLOCK_COUNT_PART ] || [ $PARTYD_CURRENT_BLOCK -ge $((WEB_BLOCK_COUNT_PART -5)) ]; then
             PARTYD_SYNCED=1
         fi
     fi
@@ -1418,7 +1418,7 @@ get_particld_status(){
 
     get_public_ips
 
-    PUBLIC_PORT_CLOSED=$( timeout 2 nc -4 -z "$PUBLIC_IPV4" 51738 > /dev/null 2>&1; echo $? )
+    PUBLIC_PORT_CLOSED=$( timeout 2 nc -4 -z "$PUBLIC_IPV4" 51938 > /dev/null 2>&1; echo $? )
 
     #staking info
     if [ $PARTYD_RUNNING == 1 ]; then
@@ -1529,7 +1529,6 @@ print_status() {
     pending "${messages["status_dblsync"]}" ; if [ "$PARTYD_SYNCED"          -gt 0 ] ; then ok "${messages["YES"]}" ; else err "${messages["NO"]}" ; fi
     pending "${messages["status_dbllast"]}" ; if [ "$PARTYD_SYNCED"          -gt 0 ] ; then ok "$PARTYD_CURRENT_BLOCK" ; else err "$PARTYD_CURRENT_BLOCK" ; fi
     pending "${messages["status_webpart"]}" ; if [ "$WEB_BLOCK_COUNT_PART"   -gt 0 ] ; then ok "$WEB_BLOCK_COUNT_PART" ; else err "$WEB_BLOCK_COUNT_PART" ; fi
-    pending "${messages["status_webchai"]}" ; if [ "$WEB_BLOCK_COUNT_CHAINZ" -gt 0 ] ; then ok "$WEB_BLOCK_COUNT_CHAINZ" || err "$WEB_BLOCK_COUNT_CHAINZ" ; fi
     if [ $PARTYD_RUNNING == 1 ]; then
         pending "${messages["breakline"]}" ; ok ""
         pending "${messages["status_stakeen"]}" ; if [ $STAKING_ENABLED -gt 0 ] ; then ok "${messages["YES"]} - $STAKING_PERCENTAGE%" ; else err "${messages["NO"]}" ; fi
@@ -1544,7 +1543,7 @@ print_status() {
     if [ "$PUBLIC_PORT_CLOSED"  -gt 0 ]; then
        echo
        highlight "* Inbound P2P Port is not open - this is okay and will not affect the function of this staking node."
-       highlight "  However by opening port 51738/tcp you can provide full resources to the Particl Network by acting as a 'full node'."
+       highlight "  However by opening port 51938/tcp you can provide full resources to the Particl Network by acting as a 'full node'."
        highlight "  A 'full staking node' will increase the number of other nodes you connect to beyond the 16 limit."
     fi
 }
